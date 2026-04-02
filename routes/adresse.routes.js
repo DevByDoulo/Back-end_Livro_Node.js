@@ -14,6 +14,10 @@ const {
 } = require('../controllers/adresse.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
 
+/**
+ * Middleware: Toutes les routes de ce fichier necessitent une authentification.
+ * Le middleware 'authenticate' verifie le token JWT et ajoute req.user.
+ */
 router.use(authenticate);
 
 /**
@@ -21,6 +25,7 @@ router.use(authenticate);
  * /api/adresses:
  *   get:
  *     summary: Lister ses adresses
+ *     description: Retourne toutes les adresses de l'utilisateur connecte
  *     tags: [Adresses]
  *     security:
  *       - bearerAuth: []
@@ -35,6 +40,7 @@ router.get('/', listerAdresses);
  * /api/adresses:
  *   post:
  *     summary: Ajouter une adresse
+ *     description: Cree une nouvelle adresse pour l'utilisateur connecte
  *     tags: [Adresses]
  *     security:
  *       - bearerAuth: []
@@ -64,6 +70,7 @@ router.post('/', ajouterAdresse);
  * /api/adresses/{id}:
  *   put:
  *     summary: Modifier une adresse
+ *     description: Met a jour une adresse existante (si elle appartient a l'utilisateur)
  *     tags: [Adresses]
  *     security:
  *       - bearerAuth: []
@@ -72,6 +79,12 @@ router.post('/', ajouterAdresse);
  *         name: id
  *         required: true
  *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ModifierAdresse'
  *     responses:
  *       200:
  *         description: Adresse mise a jour
@@ -83,6 +96,7 @@ router.put('/:id', modifierAdresse);
  * /api/adresses/{id}:
  *   delete:
  *     summary: Supprimer une adresse
+ *     description: Supprime une adresse (si elle appartient a l'utilisateur)
  *     tags: [Adresses]
  *     security:
  *       - bearerAuth: []
@@ -90,7 +104,7 @@ router.put('/:id', modifierAdresse);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
+ *         schema: { type: integer, example: 1 }
  *     responses:
  *       200:
  *         description: Adresse supprimee

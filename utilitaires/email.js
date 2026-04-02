@@ -1,12 +1,20 @@
 /**
  * Configuration Nodemailer - Envoi d'emails.
  * Utilise SMTP (Gmail, SendGrid, Mailgun, etc.)
+ * Permet d'envoyer des emails transactionnels (bienvenue, notifications, etc.)
  */
 
 const nodemailer = require('nodemailer');
 const logger = require('../config/logger');
 require('dotenv').config();
 
+/**
+ * Transporter Nodemailer configure avec les variables d'environnement.
+ * - host: serveur SMTP (defaut: smtp.gmail.com)
+ * - port: port SMTP (defaut: 587 pour non-securise)
+ * - secure: false (pour le port 587, utilise TLS)
+ * - auth: identifiants SMTP depuis les variables d'environnement
+ */
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT) || 587,
@@ -17,7 +25,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+/**
+ * Envoie un email via le transporter configure.
+ * @param {Object} params - Parametres de l'email
+ * @param {string} params.destinataire - Adresse email du destinataire
+ * @param {string} params.sujet - Sujet de l'email
+ * @param {string} params.contenu - Contenu HTML de l'email
+ * @returns {boolean} true si l'email a ete envoye avec succes, false sinon
+ */
 const envoyerEmail = async ({ destinataire, sujet, contenu }) => {
+  console.log(`[EMAIL] >>> Sending to: ${destinataire}, subject: ${sujet}`);
   try {
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"Livro" <noreply@livro.com>',
@@ -26,14 +43,24 @@ const envoyerEmail = async ({ destinataire, sujet, contenu }) => {
       html: contenu,
     });
 
+    console.log(`[EMAIL] >>> Success! MessageId: ${info.messageId}`);
     logger.info(`Email envoye a ${destinataire}: ${info.messageId}`);
     return true;
   } catch (erreur) {
+    console.log(`[EMAIL] >>> FAILED: ${erreur.message}`);
     logger.error(`Erreur envoi email a ${destinataire}: ${erreur.message}`);
     return false;
   }
 };
 
+/**
+ * Envoie un email de bienvenue a un nouvel utilisateur.
+ * @param {Object} utilisateur - Utilisateur cree
+ * @param {string} utilisateur.email - Email de l'utilisateur
+ * @param {string} utilisateur.prenom - Prenom de l'utilisateur
+ * @param {string} utilisateur.nom - Nom de l'utilisateur
+ * @returns {boolean} true si l'email a ete envoye, false sinon
+ */
 const emailBienvenue = async (utilisateur) => {
   return envoyerEmail({
     destinataire: utilisateur.email,
@@ -47,6 +74,12 @@ const emailBienvenue = async (utilisateur) => {
   });
 };
 
+/**
+ * Notifie un commercant qu'il a recu une nouvelle commande.
+ * @param {Object} commercant - Utilisateur commercant
+ * @param {Object} commande - Commande creee
+ * @returns {boolean} true si l'email a ete envoye, false sinon
+ */
 const emailNouvelleCommande = async (commercant, commande) => {
   return envoyerEmail({
     destinataire: commercant.email,
@@ -61,7 +94,15 @@ const emailNouvelleCommande = async (commercant, commande) => {
   });
 };
 
+/**
+ * Notifie un client du changement de statut de sa commande.
+ * @param {Object} client - Utilisateur client
+ * @param {Object} commande - Commande dont le statut a change
+ * @param {string} nouveauStatut - Nouveau statut de la commande
+ * @returns {boolean} true si l'email a ete envoye, false sinon
+ */
 const emailStatutCommande = async (client, commande, nouveauStatut) => {
+  // Messages adaptes a chaque statut de commande
   const messages = {
     acceptee: 'Votre commande a ete acceptee par le commercant.',
     en_preparation: 'Votre commande est en cours de preparation.',
@@ -83,6 +124,12 @@ const emailStatutCommande = async (client, commande, nouveauStatut) => {
   });
 };
 
+/**
+ * Envoie un email de recovery de mot de passe avec un code de verification.
+ * @param {Object} utilisateur - Utilisateur qui demande la reinitialisation
+ * @param {string} code - Code de verification a 6 chiffres
+ * @returns {boolean} true si l'email a ete envoye, false sinon
+ */
 const emailRecuperationMotDePasse = async (utilisateur, code) => {
   return envoyerEmail({
     destinataire: utilisateur.email,

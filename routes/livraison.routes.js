@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Livraisons
- *   description: Gestion des livraisons et suivi GPS
+ *   description: Gestion des livraisons et suivi GPS - Assignation et tracking des livreurs
  */
 const express = require('express');
 const router = express.Router();
@@ -15,6 +15,9 @@ const {
 } = require('../controllers/livraison.controller');
 const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware');
 
+/**
+ * Middleware: Toutes les routes de ce fichier necessitent une authentification.
+ */
 router.use(authenticate);
 
 /**
@@ -22,6 +25,7 @@ router.use(authenticate);
  * /api/livraisons/disponibles:
  *   get:
  *     summary: Lister les livraisons disponibles
+ *     description: Retourne les livraisons en attente qui peuvent etre acceptees par les livreurs
  *     tags: [Livraisons]
  *     security:
  *       - bearerAuth: []
@@ -36,6 +40,7 @@ router.get('/disponibles', authorizeRoles('livreur'), listerDisponibles);
  * /api/livraisons/mes-livraisons:
  *   get:
  *     summary: Lister ses livraisons
+ *     description: Retourne la liste des livraisons acceptees par le livreur connecte
  *     tags: [Livraisons]
  *     security:
  *       - bearerAuth: []
@@ -50,6 +55,7 @@ router.get('/mes-livraisons', authorizeRoles('livreur'), mesLivraisons);
  * /api/livraisons/{id}/accepter:
  *   put:
  *     summary: Accepter une livraison
+ *     description: Permet a un livreur d'accepter une livraison disponible
  *     tags: [Livraisons]
  *     security:
  *       - bearerAuth: []
@@ -69,6 +75,7 @@ router.put('/:id/accepter', authorizeRoles('livreur'), accepterLivraison);
  * /api/livraisons/{id}/statut:
  *   put:
  *     summary: Changer le statut d'une livraison
+ *     description: Met a jour le statut de la livraison (recuperation, en cours, livree)
  *     tags: [Livraisons]
  *     security:
  *       - bearerAuth: []
@@ -99,6 +106,7 @@ router.put('/:id/statut', authorizeRoles('livreur'), changerStatutLivraison);
  * /api/livraisons/{id}/position:
  *   put:
  *     summary: Mettre a jour la position GPS
+ *     description: Permet au livreur de mettre a jour sa position pendant une livraison
  *     tags: [Livraisons]
  *     security:
  *       - bearerAuth: []

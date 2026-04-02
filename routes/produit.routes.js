@@ -20,6 +20,7 @@ const { validerProduit } = require('../middlewares/validation.middleware');
  * /api/produits/commerce/{commerceId}:
  *   get:
  *     summary: Lister les produits d'un commerce
+ *     description: Retourne la liste des produits avec options de filtrage et pagination
  *     tags: [Produits]
  *     parameters:
  *       - in: path
@@ -50,6 +51,9 @@ const { validerProduit } = require('../middlewares/validation.middleware');
  */
 router.get('/commerce/:commerceId', listerProduitsCommerce);
 
+/**
+ * Middleware: Les routes suivantes necessitent une authentification.
+ */
 router.use(authenticate);
 
 /**
@@ -57,6 +61,7 @@ router.use(authenticate);
  * /api/produits/commerce/{commerceId}:
  *   post:
  *     summary: Ajouter un produit
+ *     description: Ajoute un nouveau produit a un commerce (reserve aux commercants)
  *     tags: [Produits]
  *     security:
  *       - bearerAuth: []
@@ -89,6 +94,7 @@ router.post('/commerce/:commerceId', authorizeRoles('commercant'), validerProdui
  * /api/produits/{id}:
  *   put:
  *     summary: Modifier un produit
+ *     description: Met a jour un produit (reserve au proprietaire du commerce)
  *     tags: [Produits]
  *     security:
  *       - bearerAuth: []
@@ -108,6 +114,7 @@ router.put('/:id', authorizeRoles('commercant'), modifierProduit);
  * /api/produits/{id}:
  *   delete:
  *     summary: Supprimer un produit
+ *     description: Supprime definitivement un produit (reserve au proprietaire du commerce)
  *     tags: [Produits]
  *     security:
  *       - bearerAuth: []

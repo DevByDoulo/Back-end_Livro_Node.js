@@ -1,10 +1,17 @@
 /**
  * Controller Utilisateur - Gestion du profil utilisateur.
+ * Gere les operations liees au profil de l'utilisateur authentifie.
  */
 
 const Utilisateur = require('../models/utilisateur.model');
 const { reponseSucces, reponseErreur } = require('../utilitaires/reponse');
 
+/**
+ * Recupere le profil de l'utilisateur connecte.
+ * GET /api/utilisateurs/profil
+ * @param {Object} req - Requete Express avec user.id defini par le middleware auth
+ * @param {Object} res - Reponse Express
+ */
 const getProfil = async (req, res) => {
   try {
     const utilisateur = await Utilisateur.trouverParId(req.user.id);
@@ -18,15 +25,23 @@ const getProfil = async (req, res) => {
   }
 };
 
+/**
+ * Met a jour le profil de l'utilisateur connecte.
+ * PUT /api/utilisateurs/profil
+ * @param {Object} req.body - { nom, prenom, telephone }
+ * @param {Object} res - Reponse Express
+ */
 const modifierProfil = async (req, res) => {
   try {
     const { nom, prenom, telephone } = req.body;
     const champs = {};
 
+    // Construire dynamiquement les champs a mettre a jour
     if (nom) champs.nom = nom;
     if (prenom) champs.prenom = prenom;
     if (telephone) champs.telephone = telephone;
 
+    // Verifier qu'au moins un champ est a mettre a jour
     if (Object.keys(champs).length === 0) {
       return reponseErreur(res, 400, 'Aucun champ a mettre a jour.');
     }
@@ -41,6 +56,12 @@ const modifierProfil = async (req, res) => {
   }
 };
 
+/**
+ * Desactive le compte de l'utilisateur connecte (soft delete).
+ * DELETE /api/utilisateurs/profil
+ * @param {Object} req - Requete Express avec user.id defini par le middleware auth
+ * @param {Object} res - Reponse Express
+ */
 const desactiverCompte = async (req, res) => {
   try {
     await Utilisateur.desactiver(req.user.id);

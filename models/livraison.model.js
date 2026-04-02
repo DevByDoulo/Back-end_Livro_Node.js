@@ -1,10 +1,22 @@
 /**
  * Model Livraison - Gestion des requetes SQL pour la table Livraison.
+ * Gere le suivi des livraisons, l'assignation des livreurs et le tracking GPS.
  */
 
 const pool = require('../config/db');
 
+/**
+ * Model Livraison - Objet contenant les fonctions de manipulation des livraisons.
+ */
 const Livraison = {
+  /**
+   * Cree une nouvelle livraison pour une commande.
+   * @param {Object} params - Parametres de la livraison
+   * @param {number} params.commande_id - ID de la commande associee
+   * @param {number} params.livreur_id - ID du livreur (optionnel, peut etre null si non assignee)
+   * @param {string} params.statut - Statut initial de la livraison (defaut: 'disponible')
+   * @returns {number} ID de la livraison creee
+   */
   creer: async ({ commande_id, livreur_id, statut }) => {
     const [result] = await pool.execute(
       'INSERT INTO Livraison (commande_id, livreur_id, statut, date_debut) VALUES (?, ?, ?, NOW())',
@@ -13,6 +25,11 @@ const Livraison = {
     return result.insertId;
   },
 
+  /**
+   * Recupere la livraison associee a une commande.
+   * @param {number} commande_id - ID de la commande
+   * @returns {Object|null} La livraison trouvee ou null
+   */
   trouverParCommande: async (commande_id) => {
     const [rows] = await pool.execute(
       `SELECT l.*, u.nom AS livreur_nom, u.prenom AS livreur_prenom, u.telephone AS livreur_telephone
@@ -24,6 +41,11 @@ const Livraison = {
     return rows[0] || null;
   },
 
+  /**
+   * Recupere une livraison par son ID.
+   * @param {number} id - ID de la livraison
+   * @returns {Object|null} La livraison trouvee ou null
+   */
   trouverParId: async (id) => {
     const [rows] = await pool.execute(
       `SELECT l.*, u.nom AS livreur_nom, u.prenom AS livreur_prenom
@@ -35,6 +57,12 @@ const Livraison = {
     return rows[0] || null;
   },
 
+  /**
+   * Liste les livraisons disponibles (non assignees et en attente).
+   * @param {number} offset - Offset pour la pagination
+   * @param {number} limite - Nombre de resultats
+   * @returns {Array} Liste des livraisons disponibles
+   */
   listerDisponibles: async (offset = 0, limite = 10) => {
     const [rows] = await pool.query(
       `SELECT l.*, co.montant_total, c.nom AS commerce_nom, c.zone_livraison,
@@ -51,6 +79,13 @@ const Livraison = {
     return rows;
   },
 
+  /**
+   * Liste les livraisons d'un livreur specifique.
+   * @param {number} livreur_id - ID du livreur
+   * @param {number} offset - Offset pour la pagination
+   * @param {number} limite - Nombre de resultats
+   * @returns {Array} Liste des livraisons du livreur
+   */
   listerParLivreur: async (livreur_id, offset = 0, limite = 10) => {
     const [rows] = await pool.query(
       `SELECT l.*, co.montant_total, co.statut AS statut_commande,
@@ -67,6 +102,12 @@ const Livraison = {
     return rows;
   },
 
+  /**
+   * Assigne un livreur a une livraison et met a jour le statut.
+   * @param {number} id - ID de la livraison
+   * @param {number} livreur_id - ID du livreur assignee
+   * @returns {boolean} true si l'assignation a reussi
+   */
   assignerLivreur: async (id, livreur_id) => {
     await pool.execute(
       'UPDATE Livraison SET livreur_id = ?, statut = ? WHERE id = ?',
@@ -75,8 +116,15 @@ const Livraison = {
     return true;
   },
 
+  /**
+   * Met a jour le statut d'une livraison.
+   * Si le statut est 'livree', definit egalement la date de fin.
+   * @param {number} id - ID de la livraison
+   * @param {string} statut - Nouveau statut
+   * @returns {boolean} true si la mise a jour a reussi
+   */
   mettreAJourStatut: async (id, statut) => {
-    const champs = { statut };
+    // Si la livraison est terminee, enregistrer la date de fin
     if (statut === 'livree') {
       await pool.execute(
         'UPDATE Livraison SET statut = ?, date_fin = NOW() WHERE id = ?',
@@ -91,6 +139,13 @@ const Livraison = {
     return true;
   },
 
+  /**
+   * Met a jour la position GPS du livreur en cours de livraison.
+   * @param {number} id - ID de la livraison
+   * @param {number} lat - Latitude
+   * @param {number} lng - Longitude
+   * @returns {boolean} true si la mise a jour a reussi
+   */
   mettreAJourPosition: async (id, lat, lng) => {
     await pool.execute(
       'UPDATE Livraison SET position_lat = ?, position_lng = ? WHERE id = ?',
@@ -99,6 +154,10 @@ const Livraison = {
     return true;
   },
 
+  /**
+   * Compte le nombre de livraisons disponibles (non assignees).
+   * @returns {number} Nombre de livraisons disponibles
+   */
   compterDisponibles: async () => {
     const [rows] = await pool.execute(
       "SELECT COUNT(*) AS total FROM Livraison WHERE statut = 'disponible' AND livreur_id IS NULL"

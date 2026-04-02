@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Avis
- *   description: Gestion des avis sur les commerces et livreurs
+ *   description: Gestion des avis et notes sur les comercios et livreurs
  */
 const express = require('express');
 const router = express.Router();
@@ -18,6 +18,7 @@ const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware
  * /api/avis/{type}/{cibleId}:
  *   get:
  *     summary: Lister les avis d'un commerce ou livreur
+ *     description: Retourne la liste des avis avec statistiques (note moyenne, nombre total)
  *     tags: [Avis]
  *     parameters:
  *       - in: path
@@ -34,6 +35,9 @@ const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware
  */
 router.get('/:type/:cibleId', listerAvis);
 
+/**
+ * Middleware: Les routes suivantes necessitent une authentification.
+ */
 router.use(authenticate);
 
 /**
@@ -41,6 +45,7 @@ router.use(authenticate);
  * /api/avis:
  *   post:
  *     summary: Ajouter un avis
+ *     description: Ajoute un avis et une note (1-5) sur un commerce ou un livreur
  *     tags: [Avis]
  *     security:
  *       - bearerAuth: []
@@ -67,6 +72,7 @@ router.post('/', authorizeRoles('client'), ajouterAvis);
  * /api/avis/{id}:
  *   delete:
  *     summary: Supprimer son avis
+ *     description: Supprime un avis donne precedemment (reserve au client qui l'a cree)
  *     tags: [Avis]
  *     security:
  *       - bearerAuth: []

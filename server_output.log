@@ -1,0 +1,9 @@
+[dotenv@17.3.1] injecting env (13) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+(node:23360) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[32minfo[39m: Serveur Livro demarre sur le port 3000 {"timestamp":"2026-04-02 19:14:18"}
+[32minfo[39m: Documentation: http://localhost:3000/api-docs {"timestamp":"2026-04-02 19:14:18"}

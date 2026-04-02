@@ -1,11 +1,17 @@
 /**
- * Tests pour les routes publiques (sans authentification).
+ * Tests d'integration pour les routes publiques.
+ * Verifie le bon fonctionnement des endpoints qui ne necessitent pas d'authentification.
+ * Inclut la route racine et la gestion des erreurs 404.
  */
+
 const request = require('supertest');
 const app = require('../server');
 
+/**
+ * Suite de tests pour les routes publiques.
+ */
 describe('Routes publiques', () => {
-  test('GET / retourne le message de bienvenue', async () => {
+  test('GET / - Retourne le message de bienvenue avec les informations de l\'API', async () => {
     const res = await request(app).get('/');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -13,7 +19,7 @@ describe('Routes publiques', () => {
     expect(res.body.data.documentation).toContain('/api-docs');
   });
 
-  test('Route inexistante retourne 404', async () => {
+  test('GET /api/inexistant - Retourne 404 pour une route inexistante', async () => {
     const res = await request(app).get('/api/inexistant');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);

@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Commandes
- *   description: Gestion complete des commandes
+ *   description: Gestion complete des commandes - Creation, consultation et suivi
  */
 const express = require('express');
 const router = express.Router();
@@ -16,6 +16,9 @@ const {
 const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware');
 const { validerCommande } = require('../middlewares/validation.middleware');
 
+/**
+ * Middleware: Toutes les routes de ce fichier necessitent une authentification.
+ */
 router.use(authenticate);
 
 /**
@@ -23,7 +26,7 @@ router.use(authenticate);
  * /api/commandes:
  *   post:
  *     summary: Creer une commande
- *     description: Le montant est calcule automatiquement par le systeme.
+ *     description: Le montant est calcule automatiquement par le systeme. Verifie la disponibilite des produits et le stock.
  *     tags: [Commandes]
  *     security:
  *       - bearerAuth: []
@@ -46,6 +49,7 @@ router.post('/', authorizeRoles('client'), validerCommande, creerCommande);
  * /api/commandes/mes-commandes:
  *   get:
  *     summary: Lister ses commandes
+ *     description: Retourne la liste des commandes passees par l'utilisateur connecte
  *     tags: [Commandes]
  *     security:
  *       - bearerAuth: []
@@ -67,6 +71,7 @@ router.get('/mes-commandes', authorizeRoles('client'), mesCommandes);
  * /api/commandes/commerce/{commerceId}:
  *   get:
  *     summary: Lister les commandes d'un commerce
+ *     description: Retourne les commandes d'un commerce specifique (reserve au commercant proprietaire)
  *     tags: [Commandes]
  *     security:
  *       - bearerAuth: []
@@ -89,6 +94,7 @@ router.get('/commerce/:commerceId', authorizeRoles('commercant'), commandesParCo
  * /api/commandes/{id}:
  *   get:
  *     summary: Voir le detail d'une commande
+ *     description: Retourne les details d'une commande avec ses lignes de produits
  *     tags: [Commandes]
  *     security:
  *       - bearerAuth: []
@@ -110,6 +116,7 @@ router.get('/:id', voirDetailCommande);
  * /api/commandes/{id}/statut:
  *   put:
  *     summary: Changer le statut d'une commande
+ *     description: Met a jour le statut de la commande (reserve au commercant)
  *     tags: [Commandes]
  *     security:
  *       - bearerAuth: []

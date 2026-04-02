@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Authentification
- *   description: Inscription et connexion
+ *   description: Inscription et connexion des utilisateurs
  */
 const express = require('express');
 const router = express.Router();
@@ -14,6 +14,7 @@ const { validerInscription, validerConnexion } = require('../middlewares/validat
  * /api/authentification/register:
  *   post:
  *     summary: Inscription d'un nouvel utilisateur
+ *     description: Cree un nouveau compte utilisateur avec les informations fournies
  *     tags: [Authentification]
  *     requestBody:
  *       required: true
@@ -36,6 +37,7 @@ router.post('/register', validerInscription, register);
  * /api/authentification/login:
  *   post:
  *     summary: Connexion d'un utilisateur
+ *     description: Authentifie l'utilisateur et retourne un token JWT
  *     tags: [Authentification]
  *     requestBody:
  *       required: true

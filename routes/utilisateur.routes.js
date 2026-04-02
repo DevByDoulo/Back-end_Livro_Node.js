@@ -9,6 +9,9 @@ const router = express.Router();
 const { getProfil, modifierProfil, desactiverCompte } = require('../controllers/utilisateur.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
 
+/**
+ * Middleware: Toutes les routes de ce fichier necessitent une authentification.
+ */
 router.use(authenticate);
 
 /**
@@ -16,6 +19,7 @@ router.use(authenticate);
  * /api/utilisateurs/profil:
  *   get:
  *     summary: Recuperer son profil
+ *     description: Retourne les informations du profil de l'utilisateur connecte
  *     tags: [Utilisateurs]
  *     security:
  *       - bearerAuth: []
@@ -32,6 +36,7 @@ router.get('/profil', getProfil);
  * /api/utilisateurs/profil:
  *   put:
  *     summary: Modifier son profil
+ *     description: Met a jour les informations du profil (nom, prenom, telephone)
  *     tags: [Utilisateurs]
  *     security:
  *       - bearerAuth: []
@@ -60,6 +65,7 @@ router.put('/profil', modifierProfil);
  * /api/utilisateurs/profil:
  *   delete:
  *     summary: Desactiver son compte
+ *     description: Desactive le compte de l'utilisateur (soft delete)
  *     tags: [Utilisateurs]
  *     security:
  *       - bearerAuth: []

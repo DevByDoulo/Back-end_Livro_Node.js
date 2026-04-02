@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Paiements
- *   description: Gestion des paiements
+ *   description: Gestion des paiements - Creation et suivi des transactions
  */
 const express = require('express');
 const router = express.Router();
@@ -13,6 +13,9 @@ const {
 } = require('../controllers/paiement.controller');
 const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware');
 
+/**
+ * Middleware: Toutes les routes de ce fichier necessitent une authentification.
+ */
 router.use(authenticate);
 
 /**
@@ -20,6 +23,7 @@ router.use(authenticate);
  * /api/paiements:
  *   post:
  *     summary: Creer un paiement pour une commande
+ *     description: Initialise un paiement pour une commande existante
  *     tags: [Paiements]
  *     security:
  *       - bearerAuth: []
@@ -45,6 +49,7 @@ router.post('/', authorizeRoles('client'), creerPaiement);
  * /api/paiements/{id}:
  *   get:
  *     summary: Voir le detail d'un paiement
+ *     description: Retourne les informations completes d'un paiement
  *     tags: [Paiements]
  *     security:
  *       - bearerAuth: []
@@ -64,6 +69,7 @@ router.get('/:id', voirDetailPaiement);
  * /api/paiements/{id}/statut:
  *   put:
  *     summary: Changer le statut d'un paiement
+ *     description: Met a jour le statut du paiement (reserve au commercant)
  *     tags: [Paiements]
  *     security:
  *       - bearerAuth: []

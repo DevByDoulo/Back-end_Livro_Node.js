@@ -1,14 +1,24 @@
 /**
- * Tests pour l'authentification (inscription et connexion).
+ * Tests d'integration pour le module d'authentification.
+ * Verifie les functionalities d'inscription et de connexion des utilisateurs.
+ * Utilise supertest pour simuler les requetes HTTP.
  */
+
 const request = require('supertest');
 const app = require('../server');
 
+/**
+ * Suite de tests pour l'authentification.
+ */
 describe('Authentification', () => {
+  // Email unique pour eviter les conflits de test (utilise un timestamp)
   const emailTest = `test_${Date.now()}@livro.com`;
 
+  /**
+   * Tests pour l'inscription (register).
+   */
   describe('POST /api/authentification/register', () => {
-    test('Inscription reussie', async () => {
+    test('Inscription reussie - retourne 201 et cree un utilisateur', async () => {
       const res = await request(app)
         .post('/api/authentification/register')
         .send({
@@ -25,7 +35,7 @@ describe('Authentification', () => {
       expect(res.body.data.email).toBe(emailTest);
     });
 
-    test('Inscription avec email existant retourne 409', async () => {
+    test('Inscription avec email existant - retourne 409 (conflit)', async () => {
       const res = await request(app)
         .post('/api/authentification/register')
         .send({
@@ -41,7 +51,7 @@ describe('Authentification', () => {
       expect(res.body.success).toBe(false);
     });
 
-    test('Inscription sans champs obligatoires retourne 400', async () => {
+    test('Inscription sans champs obligatoires - retourne 400', async () => {
       const res = await request(app)
         .post('/api/authentification/register')
         .send({
@@ -52,7 +62,7 @@ describe('Authentification', () => {
       expect(res.body.success).toBe(false);
     });
 
-    test('Inscription avec email invalide retourne 400', async () => {
+    test('Inscription avec email invalide - retourne 400', async () => {
       const res = await request(app)
         .post('/api/authentification/register')
         .send({
@@ -68,7 +78,7 @@ describe('Authentification', () => {
       expect(res.body.success).toBe(false);
     });
 
-    test('Inscription avec mot de passe trop court retourne 400', async () => {
+    test('Inscription avec mot de passe trop court - retourne 400', async () => {
       const res = await request(app)
         .post('/api/authentification/register')
         .send({
@@ -85,8 +95,11 @@ describe('Authentification', () => {
     });
   });
 
+  /**
+   * Tests pour la connexion (login).
+   */
   describe('POST /api/authentification/login', () => {
-    test('Connexion reussie retourne un token', async () => {
+    test('Connexion reussie - retourne un token JWT', async () => {
       const res = await request(app)
         .post('/api/authentification/login')
         .send({
@@ -98,10 +111,11 @@ describe('Authentification', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.token).toBeDefined();
       expect(res.body.data.utilisateur).toBeDefined();
+      // Verifie que le mot de passe n'est pas retourne dans la reponse
       expect(res.body.data.utilisateur.mot_de_passe).toBeUndefined();
     });
 
-    test('Connexion avec mauvais mot de passe retourne 401', async () => {
+    test('Connexion avec mauvais mot de passe - retourne 401', async () => {
       const res = await request(app)
         .post('/api/authentification/login')
         .send({
@@ -113,7 +127,7 @@ describe('Authentification', () => {
       expect(res.body.success).toBe(false);
     });
 
-    test('Connexion avec email inexistant retourne 401', async () => {
+    test('Connexion avec email inexistant - retourne 401', async () => {
       const res = await request(app)
         .post('/api/authentification/login')
         .send({
@@ -125,7 +139,7 @@ describe('Authentification', () => {
       expect(res.body.success).toBe(false);
     });
 
-    test('Connexion sans email retourne 400', async () => {
+    test('Connexion sans email - retourne 400', async () => {
       const res = await request(app)
         .post('/api/authentification/login')
         .send({

@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Commerces
- *   description: CRUD des commerces
+ *   description: CRUD des comercios - Gestion des magasins et restaurants
  */
 const express = require('express');
 const router = express.Router();
@@ -20,6 +20,7 @@ const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware
  * /api/commerces:
  *   get:
  *     summary: Lister tous les commerces
+ *     description: Retourne la liste de tous les commerces actifs avec pagination
  *     tags: [Commerces]
  *     parameters:
  *       - in: query
@@ -30,7 +31,7 @@ const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware
  *         schema: { type: integer, default: 10 }
  *     responses:
  *       200:
- *         description: Liste des commerces
+ *         description: Liste des comercios
  */
 router.get('/', listerCommerces);
 
@@ -39,6 +40,7 @@ router.get('/', listerCommerces);
  * /api/commerces/{id}:
  *   get:
  *     summary: Voir le detail d'un commerce
+ *     description: Retourne les informations completes d'un commerce
  *     tags: [Commerces]
  *     parameters:
  *       - in: path
@@ -53,6 +55,9 @@ router.get('/', listerCommerces);
  */
 router.get('/:id', voirDetail);
 
+/**
+ * Middleware: Les routes suivantes necessitent une authentification.
+ */
 router.use(authenticate);
 
 /**
@@ -60,6 +65,7 @@ router.use(authenticate);
  * /api/commerces:
  *   post:
  *     summary: Creer un commerce
+ *     description: Cree un nouveau commerce (reserve aux commercants)
  *     tags: [Commerces]
  *     security:
  *       - bearerAuth: []
@@ -89,6 +95,7 @@ router.post('/', authorizeRoles('commercant'), creerCommerce);
  * /api/commerces/{id}:
  *   put:
  *     summary: Modifier son commerce
+ *     description: Met a jour un commerce (reserve au proprietaire)
  *     tags: [Commerces]
  *     security:
  *       - bearerAuth: []
@@ -110,6 +117,7 @@ router.put('/:id', authorizeRoles('commercant'), modifierCommerce);
  * /api/commerces/{id}:
  *   delete:
  *     summary: Supprimer son commerce
+ *     description: Supprime definitivement un commerce (reserve au proprietaire)
  *     tags: [Commerces]
  *     security:
  *       - bearerAuth: []

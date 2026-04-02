@@ -1,12 +1,18 @@
 /**
  * Configuration Swagger - Documentation API.
- * Genere automatiquement la documentation a partir des commentaires JSDoc.
+ * Genere automatiquement la documentation a partir des commentaires JSDoc dans les fichiers de routes.
+ * Accessible via /api-docs une fois le serveur demarre.
  */
 
 const swaggerJsdoc = require('swagger-jsdoc');
 
+/**
+ * Options de configuration pour swagger-jsdoc.
+ * Definit les metadonnees de l'API et les schemas de donnees reutilisables.
+ */
 const options = {
   definition: {
+    // Version de la specification OpenAPI (3.0.0 est la plus recente)
     openapi: '3.0.0',
     info: {
       title: 'API Livro - Documentation',
@@ -16,13 +22,16 @@ const options = {
         name: 'Equipe Livro',
       },
     },
+    // Serveurs disponibles pour tester l'API
     servers: [
       {
         url: 'http://localhost:3000',
         description: 'Serveur local',
       },
     ],
+    // Composants reutilisables (schemas, security schemes)
     components: {
+      // Definition du scheme d'authentification JWT
       securitySchemes: {
         bearerAuth: {
           type: 'http',
@@ -30,7 +39,9 @@ const options = {
           bearerFormat: 'JWT',
         },
       },
+      // Schemas de donnees pour les reponses et demandes
       schemas: {
+        // Schema de reponse standard pour les succes
         ReponseSucces: {
           type: 'object',
           properties: {
@@ -39,6 +50,7 @@ const options = {
             data: { type: 'object' },
           },
         },
+        // Schema de reponse standard pour les erreurs
         ReponseErreur: {
           type: 'object',
           properties: {
@@ -47,6 +59,7 @@ const options = {
             data: { type: 'object', nullable: true },
           },
         },
+        // Schema pour l'utilisateur
         Utilisateur: {
           type: 'object',
           properties: {
@@ -59,6 +72,7 @@ const options = {
             est_actif: { type: 'boolean' },
           },
         },
+        // Schema pour le commerce
         Commerce: {
           type: 'object',
           properties: {
@@ -70,6 +84,7 @@ const options = {
             est_actif: { type: 'boolean' },
           },
         },
+        // Schema pour le produit
         Produit: {
           type: 'object',
           properties: {
@@ -82,6 +97,7 @@ const options = {
             est_disponible: { type: 'boolean' },
           },
         },
+        // Schema pour la commande
         Commande: {
           type: 'object',
           properties: {
@@ -93,6 +109,7 @@ const options = {
             frais_livraison: { type: 'number' },
           },
         },
+        // Schema pour la connexion
         Login: {
           type: 'object',
           required: ['email', 'mot_de_passe'],
@@ -101,6 +118,7 @@ const options = {
             mot_de_passe: { type: 'string', example: '123456' },
           },
         },
+        // Schema pour l'inscription
         Register: {
           type: 'object',
           required: ['nom', 'prenom', 'email', 'mot_de_passe', 'telephone', 'role'],
@@ -113,6 +131,7 @@ const options = {
             role: { type: 'string', enum: ['client', 'commercant', 'livreur'] },
           },
         },
+        // Schema pour la creation de commande
         CreerCommande: {
           type: 'object',
           required: ['commerce_id', 'adresse_id', 'produits'],
@@ -132,12 +151,29 @@ const options = {
             },
           },
         },
+        // Schema pour la modification d'adresse
+        ModifierAdresse: {
+          type: 'object',
+          properties: {
+            libelle: { type: 'string', example: 'Bureau' },
+            adresse: { type: 'string', example: '45 Avenue Mohammed V' },
+            ville: { type: 'string', example: 'Dakar' },
+            quartier: { type: 'string', example: 'Fann' },
+            latitude: { type: 'number', example: 14.6928 },
+            longitude: { type: 'number', example: -17.4467 },
+            est_principale: { type: 'boolean', example: false },
+          },
+        },
       },
     },
   },
-  apis: ['./routes/*.js'],
+  // Chemins des fichiers a analyser pour generer la documentation (fichiers de routes)
+  apis: ['./routes/**/*.js'],
 };
 
+/**
+ * Generation de la specification Swagger a partir des options.
+ */
 const swaggerSpec = swaggerJsdoc(options);
 
 module.exports = swaggerSpec;
