@@ -1,10 +1,8 @@
 /**
- * Routes Paiement - Gestion des paiements.
- *
- * Exemples:
- * POST   /api/paiements          - Creer un paiement (client)
- * GET    /api/paiements/:id      - Detail du paiement
- * PUT    /api/paiements/:id/statut - Changer le statut (commercant)
+ * @swagger
+ * tags:
+ *   name: Paiements
+ *   description: Gestion des paiements
  */
 const express = require('express');
 const router = express.Router();
@@ -17,8 +15,78 @@ const { authenticate, authorizeRoles } = require('../middlewares/auth.middleware
 
 router.use(authenticate);
 
+/**
+ * @swagger
+ * /api/paiements:
+ *   post:
+ *     summary: Creer un paiement pour une commande
+ *     tags: [Paiements]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [commande_id, moyen]
+ *             properties:
+ *               commande_id: { type: integer }
+ *               moyen: { type: string, enum: [mobile_money, carte_bancaire, cash] }
+ *               reference: { type: string }
+ *     responses:
+ *       201:
+ *         description: Paiement cree
+ */
 router.post('/', authorizeRoles('client'), creerPaiement);
+
+/**
+ * @swagger
+ * /api/paiements/{id}:
+ *   get:
+ *     summary: Voir le detail d'un paiement
+ *     tags: [Paiements]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Detail du paiement
+ */
 router.get('/:id', voirDetailPaiement);
+
+/**
+ * @swagger
+ * /api/paiements/{id}/statut:
+ *   put:
+ *     summary: Changer le statut d'un paiement
+ *     tags: [Paiements]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [statut]
+ *             properties:
+ *               statut:
+ *                 type: string
+ *                 enum: [en_attente, confirme, echoue, rembourse]
+ *     responses:
+ *       200:
+ *         description: Statut mis a jour
+ */
 router.put('/:id/statut', authorizeRoles('commercant'), changerStatutPaiement);
 
 module.exports = router;

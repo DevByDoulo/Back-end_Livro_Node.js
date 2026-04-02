@@ -1,9 +1,15 @@
 /**
  * Serveur principal de l'API Livro.
- * Point d'entrée de l'application Express.
+ * Point d'entree de l'application Express.
  */
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger/swagger.config');
+const logger = require('./config/logger');
+const { limiterGlobal, limiterAuth } = require('./config/rateLimit');
 require('dotenv').config();
 
 // Import des routes
@@ -20,10 +26,28 @@ const adresseRoutes = require('./routes/adresse.routes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares globaux
+// Securite - Helmet
+app.use(helmet());
+
+// CORS
 app.use(cors());
+
+// Parsing JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Logging HTTP - Morgan (via Winston)
+app.use(
+  morgan('combined', {
+    stream: { write: (message) => logger.info(message.trim()) },
+  })
+);
+
+// Rate Limiting global
+app.use(limiterGlobal);
+
+// Swagger - Documentation API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Route de bienvenue
 app.get('/', (req, res) => {
@@ -32,46 +56,13 @@ app.get('/', (req, res) => {
     message: 'Bienvenue sur l\'API Livro - Plateforme de livraison intelligente.',
     data: {
       version: '1.0.0',
-      endpoints: [
-        'POST   /api/authentification/register',
-        'POST   /api/authentification/login',
-        'GET    /api/utilisateurs/profil',
-        'PUT    /api/utilisateurs/profil',
-        'DELETE /api/utilisateurs/profil',
-        'GET    /api/commerces',
-        'GET    /api/commerces/:id',
-        'POST   /api/commerces',
-        'PUT    /api/commerces/:id',
-        'DELETE /api/commerces/:id',
-        'GET    /api/produits/commerce/:commerceId',
-        'POST   /api/produits/commerce/:commerceId',
-        'PUT    /api/produits/:id',
-        'DELETE /api/produits/:id',
-        'POST   /api/commandes',
-        'GET    /api/commandes/mes-commandes',
-        'GET    /api/commandes/:id',
-        'PUT    /api/commandes/:id/statut',
-        'POST   /api/paiements',
-        'GET    /api/paiements/:id',
-        'PUT    /api/paiements/:id/statut',
-        'GET    /api/livraisons/disponibles',
-        'PUT    /api/livraisons/:id/accepter',
-        'PUT    /api/livraisons/:id/statut',
-        'PUT    /api/livraisons/:id/position',
-        'POST   /api/avis',
-        'GET    /api/avis/:type/:cibleId',
-        'DELETE /api/avis/:id',
-        'GET    /api/adresses',
-        'POST   /api/adresses',
-        'PUT    /api/adresses/:id',
-        'DELETE /api/adresses/:id',
-      ],
+      documentation: `http://localhost:${PORT}/api-docs`,
     },
   });
 });
 
-// Montage des routes
-app.use('/api/authentification', authentificationRoutes);
+// Montage des routes avec rate limiting specifique pour l'auth
+app.use('/api/authentification', limiterAuth, authentificationRoutes);
 app.use('/api/utilisateurs', utilisateurRoutes);
 app.use('/api/commerces', commerceRoutes);
 app.use('/api/produits', produitRoutes);
@@ -92,7 +83,7 @@ app.use((req, res) => {
 
 // Gestionnaire d'erreurs global
 app.use((err, req, res, next) => {
-  console.error('Erreur non geree:', err.stack);
+  logger.error(`Erreur non geree: ${err.message}`, { stack: err.stack });
   res.status(500).json({
     success: false,
     message: 'Erreur interne du serveur.',
@@ -101,8 +92,8 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Serveur Livro demarre sur le port ${PORT}`);
-  console.log(`http://localhost:${PORT}`);
+  logger.info(`Serveur Livro demarre sur le port ${PORT}`);
+  logger.info(`Documentation: http://localhost:${PORT}/api-docs`);
 });
 
 module.exports = app;
