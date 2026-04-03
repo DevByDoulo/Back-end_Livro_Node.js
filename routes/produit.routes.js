@@ -103,6 +103,19 @@ router.post('/commerce/:commerceId', authorizeRoles('commercant'), validerProdui
  *         name: id
  *         required: true
  *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string, example: "Nouveau produit" }
+ *               description: { type: string, example: "Nouvelle description" }
+ *               prix: { type: number, example: 1500 }
+ *               stock: { type: integer, example: 100 }
+ *               est_disponible: { type: boolean, example: true }
+ *               image: { type: string }
  *     responses:
  *       200:
  *         description: Produit mis a jour

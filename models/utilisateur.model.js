@@ -108,6 +108,15 @@ const Utilisateur = {
   },
 
   /**
+   * Hashe un mot de passe pour le stocker en base.
+   * @param {string} motDePasse - Mot de passe en clair a hasher
+   * @returns {string} Le hash du mot de passe
+   */
+  hasherMotDePasse: async (motDePasse) => {
+    return bcrypt.hash(motDePasse, SALT_ROUNDS);
+  },
+
+  /**
    * Recupere la liste des livreurs disponibles (actifs).
    * @returns {Array} Liste des livreurs disponibles
    */

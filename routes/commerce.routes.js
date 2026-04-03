@@ -104,6 +104,19 @@ router.post('/', authorizeRoles('commercant'), creerCommerce);
  *         name: id
  *         required: true
  *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string, example: "Nouveau nom" }
+ *               description: { type: string, example: "Nouvelle description" }
+ *               logo: { type: string }
+ *               horaires: { type: string, example: "09h-20h" }
+ *               zone_livraison: { type: string, example: "Dakar et Rufisque" }
+ *               est_actif: { type: boolean }
  *     responses:
  *       200:
  *         description: Commerce mis a jour

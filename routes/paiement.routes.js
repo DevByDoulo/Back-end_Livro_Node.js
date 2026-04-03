@@ -36,7 +36,7 @@ router.use(authenticate);
  *             required: [commande_id, moyen]
  *             properties:
  *               commande_id: { type: integer }
- *               moyen: { type: string, enum: [mobile_money, carte_bancaire, cash] }
+  *               moyen: { type: string, enum: [wave, orange_money, carte_bancaire, cash] }
  *               reference: { type: string }
  *     responses:
  *       201:

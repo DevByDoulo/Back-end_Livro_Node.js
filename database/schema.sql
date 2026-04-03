@@ -65,7 +65,7 @@ CREATE TABLE Produit (
 CREATE TABLE Paiement (
     id INT AUTO_INCREMENT PRIMARY KEY,
     montant DECIMAL(10,2) NOT NULL,
-    moyen ENUM('mobile_money', 'carte_bancaire', 'cash') NOT NULL,
+    moyen ENUM('wave', 'orange_money', 'carte_bancaire', 'cash') NOT NULL,
     statut ENUM('en_attente', 'confirme', 'echoue', 'rembourse') DEFAULT 'en_attente',
     date_paiement DATETIME DEFAULT CURRENT_TIMESTAMP,
     reference VARCHAR(100)

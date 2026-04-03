@@ -29,17 +29,18 @@ const register = async (req, res) => {
     }
 
     // Creer le nouvel utilisateur dans la base de donnees
+    const userRole = role || 'client';
     const id = await Utilisateur.creer({
       nom,
       prenom,
       email,
       mot_de_passe,
       telephone,
-      role: role || 'client', // Par defaut, le role est 'client'
+      role: userRole,
     });
 
-    // Envoyer un email de bienvenue (de facon asynchrone, sans bloquer la reponse)
-    emailBienvenue({ email, prenom, nom }).catch((err) =>
+    // Envoyer un email de bienvenue personnalise selon le role
+    emailBienvenue({ email, prenom, nom, role: userRole }).catch((err) =>
       logger.error(`Erreur envoi email bienvenue: ${err.message}`)
     );
 
@@ -49,7 +50,7 @@ const register = async (req, res) => {
       nom,
       prenom,
       email,
-      role: role || 'client',
+      role: userRole,
     });
   } catch (erreur) {
     console.error('Erreur register:', erreur.message);
